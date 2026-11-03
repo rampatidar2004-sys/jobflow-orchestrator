@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "JobFlow Orchestrator",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "token", "value": "" },
+    { "key": "jobId", "value": "" },
+    { "key": "workflowId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo1234\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Create job (ONCE, demo handler)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/jobs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"demo-once\",\n  \"taskType\": \"demo\",\n  \"scheduleType\": \"ONCE\",\n  \"priority\": 5,\n  \"maxAttempts\": 3,\n  \"payload\": \"{\\\"durationMs\\\":200}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List jobs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/jobs"
+          }
+        },
+        {
+          "name": "Get job",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/jobs/{{jobId}}"
+          }
+        },
+        {
+          "name": "Pause job",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/jobs/{{jobId}}/pause"
+          }
+        },
+        {
+          "name": "Resume job",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/jobs/{{jobId}}/resume"
+          }
+        },
+        {
+          "name": "Run job now",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/jobs/{{jobId}}/run"
+          }
+        },
+        {
+          "name": "Cancel job",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/jobs/{{jobId}}/cancel"
+          }
+        },
+        {
+          "name": "Job execution history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/jobs/{{jobId}}/executions"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workflows",
+      "item": [
+        {
+          "name": "Create workflow (prepare/validate/enrich/finish)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/workflows",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"prepare-validate-enrich-finish\",\n  \"steps\": [\n    { \"stepKey\": \"prepare\", \"taskType\": \"demo\", \"payload\": \"{}\", \"dependsOn\": [] },\n    { \"stepKey\": \"validate\", \"taskType\": \"demo\", \"payload\": \"{}\", \"dependsOn\": [\"prepare\"] },\n    { \"stepKey\": \"enrich\", \"taskType\": \"demo\", \"payload\": \"{}\", \"dependsOn\": [\"prepare\"] },\n    { \"stepKey\": \"finish\", \"taskType\": \"demo\", \"payload\": \"{}\", \"dependsOn\": [\"validate\", \"enrich\"] }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "List workflows",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/workflows"
+          }
+        },
+        {
+          "name": "Start execution (with idempotency key)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/workflows/{{workflowId}}/executions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotencyKey\": \"demo-run-1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List executions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/workflows/{{workflowId}}/executions"
+          }
+        }
+      ]
+    }
+  ]
+}
